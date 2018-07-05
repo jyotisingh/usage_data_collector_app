@@ -90,6 +90,8 @@ sam deploy \
     --stack-name usage_data_collector_app \
     --capabilities CAPABILITY_IAM
 ```
+sam deploy     --template-file packaged.yaml     --stack-name usage-data-collector-app     --capabilities CAPABILITY_IAM --region us-east-1
+
 
 > **See [Serverless Application Model (SAM) HOWTO Guide](https://github.com/awslabs/serverless-application-model/blob/master/HOWTO.md) for more details in how to get started.**
 
@@ -97,7 +99,7 @@ After deployment is complete you can run the following command to retrieve the A
 
 ```bash
 aws cloudformation describe-stacks \
-    --stack-name usage_data_collector_app \
+    --stack-name usage-data-collector-app \
     --query 'Stacks[].Outputs'
 ``` 
 

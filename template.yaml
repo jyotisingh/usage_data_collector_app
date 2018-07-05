@@ -6,8 +6,34 @@ Description: >
 # More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
 Globals:
     Function:
-        Timeout: 3
+        Timeout: 300
 
+Parameters:
+  DBName:
+    Default: usagedata
+    Description: The database name
+    Type: String
+    MinLength: '1'
+    MaxLength: '10'
+    AllowedPattern: "[a-zA-Z][a-zA-Z0-9]*"
+    ConstraintDescription: must begin with a letter and contain only alphanumeric
+      characters.
+  DBUsername:
+    Default: root
+    NoEcho: 'true'
+    Description: The database admin account username
+    Type: String
+    MinLength: '1'
+    MaxLength: '16'
+    AllowedPattern: "[a-zA-Z][a-zA-Z0-9]*"
+    ConstraintDescription: must begin with a letter and contain only alphanumeric
+      characters.
+  DBPassword:
+    Default: root1234
+    NoEcho: 'true'
+    Description: The database admin account password
+    Type: String
+    MinLength: '8'
 
 Resources:
     HelloWorldFunction:
@@ -26,6 +52,19 @@ Resources:
                         Path: /hello
                         Method: get
 
+    UsageDataPostgresDB:
+      Type : AWS::RDS::DBInstance
+      Properties:
+        Engine: postgres
+        DBName:
+          Ref: DBName
+        MasterUsername:
+          Ref: DBUsername
+        MasterUserPassword:
+          Ref: DBPassword
+        DBInstanceClass: db.t2.micro
+        AllocatedStorage: '5'
+
 Outputs:
 
     HelloWorldApi:
@@ -39,3 +78,23 @@ Outputs:
     HelloWorldFunctionIamRole:
       Description: "Implicit IAM Role created for Hello World function"
       Value: !GetAtt HelloWorldFunctionRole.Arn
+
+    UsageDataPostgresDBConnectionString:
+      Description: "db connection string"
+      Value:  
+        Fn::Join:
+        - ''
+        - - postgresql://
+          - Ref: DBUsername
+          - ":"
+          - Ref: DBPassword
+          - "@"
+          - Fn::GetAtt:
+            - UsageDataPostgresDB
+            - Endpoint.Address
+          - ":"
+          - Fn::GetAtt:
+            - UsageDataPostgresDB
+            - Endpoint.Port
+          - "/"
+          - Ref: DBName
